@@ -3,4 +3,5 @@ export default interface Payload {
     t: string;
     s: number;
     d: any;
+    [propName: string]: any;
 }

@@ -8,6 +8,7 @@ import { Channel, TextChannel, VoiceChannel } from "../classes/Channel.ts";
 import { TextChannelType } from "../constants/enums.ts";
 import * as logs from "../utilities/logging.ts";
 import ClientOptions from "../interfaces/ClientOptions.ts";
+import Guild from "../classes/Guild.ts";
 
 export default class Client extends EventEmitter<{
     ready (): any
@@ -15,10 +16,11 @@ export default class Client extends EventEmitter<{
 }>{
     token!: string;
     intents!: number;
-    private socket: WebsocketManager = new WebsocketManager(this);
+    socket: WebsocketManager = new WebsocketManager(this);
     public user!: User;
     public rest!: RESTapi;
     public channels: Map<string,Channel | TextChannel | VoiceChannel> = new Map<string,Channel | TextChannel | VoiceChannel>;
+    public guilds: Map<string,Guild> = new Map<string,Guild>;
 
     constructor(token: string,options: ClientOptions) {
         super();
@@ -34,31 +36,54 @@ export default class Client extends EventEmitter<{
         }
     }
 
-    getChannel(id: string) : Promise<Channel |  TextChannel | VoiceChannel | undefined> {
-        return new Promise((resolve,reject) => {
-            let channel = this.channels.get(id);
+    async getChannel(id?: string) : Promise<Channel |  TextChannel | VoiceChannel | undefined> {
+        if (!id) return;
+        let channel = this.channels.get(id);
 
-            if (channel) return resolve(channel);
+        if (channel !== undefined) {
+            return channel;
+        }
 
-            this.rest.request(`channels/${id}`,"GET").then((channelDataResponse) => {
-                channelDataResponse.json().then((channelData) => {
-                    if (channelData.code) {
-                        logs.error(channelData);
-                        reject(channelData);
-                    }
-            
-                    if (Object.values(TextChannelType).includes(channelData.type)) {
-                        channel = new TextChannel(channelData);
-                    } else {
-                        channel = new VoiceChannel(channelData);
-                    }
-            
-                    this.channels.set(id,channel);
+        const channelDataResponse = await this.rest.request(`channels/${id}`,"GET");
+        const channelData = await channelDataResponse.json();
 
-                    return resolve(channel);
-                })
-            });
-        });
+        if (channelData.code) {
+            logs.error(channelData);
+            return;
+        }
+    
+        if (Object.values(TextChannelType).includes(channelData.type)) {
+            channel = new TextChannel(channelData);
+        } else {
+            channel = new VoiceChannel(channelData);
+        }
+    
+        this.channels.set(id,channel);
+
+        return channel;
+    }
+
+    async getGuild(id?: string) : Promise<Guild | undefined> {
+        if (!id) return;
+        let guild = this.guilds.get(id);
+
+        if (guild !== undefined) {
+            return guild;
+        }
+
+        const guildDataResponse = await this.rest.request(`guilds/${id}`,"GET");
+        const guildData = await guildDataResponse.json();
+
+        if (guildData.code) {
+            logs.error(guildData);
+            return;
+        }
+    
+        guild = new Guild(guildData);
+    
+        this.guilds.set(id,guild);
+
+        return guild;
     }
 
     connect() {

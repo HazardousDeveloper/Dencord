@@ -1,3 +1,4 @@
+import Guild from "./Guild.ts";
 export class Channel {
     id!: string;
     type!: number;

@@ -10,20 +10,15 @@ export default class Message {
     author!: User;
     content!: string;
 
-    constructor(private client: Client) {
-        
-    }
-
-    public static async build(client: Client,d: any): Promise<Message> {
-        const msg: Message = new Message(client);
-        msg.id = d.id;
-        msg.channelId = d.channel_id;
-        if (d.channelId) {
-            msg.channel = await msg.client.getChannel(d.channelId);
-        }
-        msg.author = new User(d.author);
-        msg.content = d.content;
-        return msg;
+    constructor(private client: Client,d: any) {
+        this.id = d.id;
+        this.channelId = d.channel_id;
+        console.log(this.channelId);
+        this.author = new User(d.author);
+        this.content = d.content;
+        this.client.getChannel(this.channelId).then((value) => {
+            this.channel = value;
+        });
     }
 
     async reply(content: string | any) {
@@ -47,7 +42,7 @@ export default class Message {
         const response = await this.client.rest.request(`channels/${this.channelId}/messages`,"POST",data);
 
         const newMessage: any = await response.json();
-        return await Message.build(this.client,newMessage);
+        return new Message(this.client,newMessage);
     }
 
     async edit(content: string | any) {

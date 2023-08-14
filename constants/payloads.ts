@@ -20,3 +20,12 @@ export const Identify = {
         }
     }
 }
+
+export const Resume = {
+    op: 6,
+    d: {
+        token: "",
+        session_id: "",
+        seq: 0
+    }
+}

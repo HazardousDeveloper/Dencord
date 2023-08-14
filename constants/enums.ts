@@ -35,7 +35,7 @@ export enum OpCodes {
     RESUME = 6,
     RECONNECT = 7,
     REQUEST_GUILD_MEMBERS = 8,
-    INVALID_SEASON = 9,
+    INVALID_SESSION = 9,
     HELLO = 10,
     HEARTBEAT_ACK = 11
 }
@@ -57,4 +57,71 @@ export enum TextChannelType {
 export enum VoiceChannelType {
     GUILD_VOICE = 2,
     GUILD_STAGE_VOICE = 13,
+}
+
+export enum GuildDefaultNotificationLevel {
+    ALL_MESSAGES = 0,
+    ONLY_MENTIONS = 1
+}
+
+export enum GuildVerificationLevel {
+    NONE = 0,
+    LOW = 1,
+    MEDIUM = 2,
+    HIGH = 3,
+    VERY_HIGH = 4
+}
+
+export enum GuildExplicitContentFilterLevel {
+    DISABLED = 0,
+    MEMBERS_WITHOUT_ROLES = 1,
+    ALL_MEMBERS = 2
+}
+
+export enum GuildMFALevel {
+    NONE = 0,
+    ELEVATED = 1
+}
+
+export enum GuildPremiumTier {
+    NONE = 0,
+    TIER_1 = 1,
+    TIER_2 = 2,
+    TIER_3 = 3
+}
+
+export enum GuildNSFWLevel {
+    DEFAULT = 0,
+    EXPLICIT = 1,
+    SAFE = 2,
+    AGE_RESTRICTED = 3
+}
+
+export enum StickerType {
+    STANDARD = 1,
+    GUILD = 2
+}
+
+export enum StickerFormat {
+    PNG = 1,
+    APNG = 2,
+    LOTTIE = 3,
+    GIF = 4
+}
+
+export const WebSocketCloseCodes: {[propName: string]: any;} = {
+    "4000": ["Unknown error",true],
+    "4001": ["Unknown opcode",true],
+    "4002": ["Decode error",true],
+    "4003": ["Not authenticated",true],
+    "4004": ["Authentication failed",false],
+    "4005": ["Already authenticated",true],
+    "4007": ["Invalid seq",true],
+    "4008": ["Rate limited",true],
+    "4009": ["Session timed out",true],
+    "4010": ["Invalid shard",false],
+    "4011": ["Sharding required",false],
+    "4012": ["Invalid API version",false],
+    "4013": ["Invalid intent(s)",false],
+    "4014": ["Disallowed intent(s)",false]
 }

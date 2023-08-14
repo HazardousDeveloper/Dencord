@@ -1,4 +1,6 @@
-import { Constants, OpCodes } from "../constants/enums.ts";
+import Thread from "https://deno.land/x/Thread@v4.1.0/Thread.ts";
+
+import { Constants, OpCodes, WebSocketCloseCodes } from "../constants/enums.ts";
 import Payload from "../interfaces/Payload.ts";
 import * as Payloads from "../constants/payloads.ts";
 import * as logs from "../utilities/logging.ts";
@@ -9,6 +11,10 @@ export default class WebsocketManager {
     private socket!: WebSocket;
     private interval: any;
     public user: User | undefined;
+
+    resumeGatewayUrl!: string;
+    sessionId!: string;
+    lastSequenceNumber!: number;
 
     constructor(private client: Client) {
         
@@ -35,10 +41,31 @@ export default class WebsocketManager {
         return this.socket.send(JSON.stringify(Payloads.Identify));
     }
 
-    connect(token: string) {
+    disconnect() {
+        if (this.interval) {
+            clearInterval(this.interval);
+        }
+        this.socket.close();
+    }
+
+    reconnect(token: string) {
+        this.disconnect();
+        this.connect(token,this.resumeGatewayUrl);
+    }
+
+    connect(token: string,gatewayUrl?: string) {
         try {
-            this.socket = new WebSocket(Constants.GATEWAY);
-            this.socket.onerror = console.error
+            this.socket = new WebSocket(gatewayUrl || Constants.GATEWAY);
+            this.socket.onerror = console.error;
+            this.socket.addEventListener("close",(ev: CloseEvent) => {
+                const errorMessage = WebSocketCloseCodes[String(ev.code)][0];
+                if (errorMessage) {
+                    logs.error(`WebSocket closed : ${String(ev.code)} "${errorMessage}"`);
+                }
+                if (!ev.code || (WebSocketCloseCodes[String(ev.code)] && WebSocketCloseCodes[String(ev.code)][1] === true)) {
+                    this.reconnect(this.client.token);
+                }
+            });
             this.socket.addEventListener("open",(_ev: Event) => {
                 logs.log("Websocket connection is opened");
             });
@@ -46,10 +73,12 @@ export default class WebsocketManager {
                 const payload: Payload = JSON.parse(message.data);
 
                 switch (payload.op) {
-                    case OpCodes.HELLO: {
+                    case (OpCodes.HELLO): {
                         logs.log("Got HELLO");
                         this.interval = this.heartbeat(payload.d.heartbeat_interval);
-                        await this.identify(token);
+                        if (!gatewayUrl) {
+                            await this.identify(token);
+                        }
                         break;
                     }
                     case (OpCodes.HEARTBEAT): {
@@ -58,6 +87,25 @@ export default class WebsocketManager {
                     }
                     case (OpCodes.HEARTBEAT_ACK): {
                         logs.log("Heartbeat acknowledged");
+                        break;
+                    }
+                    case (OpCodes.RECONNECT): {
+                        this.reconnect(token);
+                        break;
+                    }
+                    case (OpCodes.INVALID_SESSION): {
+                        if (payload.d === true) {
+                            this.reconnect(token);
+                        } else if (payload.d === false && gatewayUrl) {
+                            this.disconnect();
+                            this.connect(token);
+                        }
+                        break;
+                    }
+                    case (OpCodes.DISPATCH): {
+                        if (payload.s) {
+                            this.lastSequenceNumber = payload.s;
+                        }
                         break;
                     }
                     default:
@@ -74,6 +122,14 @@ export default class WebsocketManager {
                     }
                 }
             };
+
+            if (gatewayUrl) {
+                Payloads.Resume.d.token = this.client.token;
+                Payloads.Resume.d.session_id = this.sessionId;
+                Payloads.Resume.d.seq = this.lastSequenceNumber;
+
+                this.socket.send(JSON.stringify(Payloads.Resume));
+            }
         } catch (err) {
             logs.error(err);
             return;
