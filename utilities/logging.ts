@@ -1,4 +1,4 @@
-import * as Colors from "std/fmt/colors.ts";
+import * as Colors from "https://deno.land/std/fmt/colors.ts";
 
 export function log(message: string) {
     console.log(Colors.green("[Dencord] ") + message);

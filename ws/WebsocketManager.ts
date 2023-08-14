@@ -1,5 +1,3 @@
-import Thread from "https://deno.land/x/Thread@v4.1.0/Thread.ts";
-
 import { Constants, OpCodes, WebSocketCloseCodes } from "../constants/enums.ts";
 import Payload from "../interfaces/Payload.ts";
 import * as Payloads from "../constants/payloads.ts";
