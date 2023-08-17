@@ -1,4 +1,6 @@
-import { User } from "./User.ts";
+// Classes
+import User from "./User.ts";
+
 export default class Sticker {
     id!: string;
     packId?: string;

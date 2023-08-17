@@ -1,9 +1,16 @@
-import { Constants, OpCodes, WebSocketCloseCodes } from "../constants/enums.ts";
-import Payload from "../interfaces/Payload.ts";
-import * as Payloads from "../constants/payloads.ts";
-import * as logs from "../utilities/logging.ts";
-import { User } from "../classes/User.ts";
+// Classes
+import User from "../classes/User.ts";
 import Client from "../client/Client.ts";
+
+// Interfaces
+import Payload from "../interfaces/Payload.ts";
+
+// Constants
+import { Constants, OpCodes, WebSocketCloseCodes } from "../constants/enums.ts";
+import * as Payloads from "../constants/payloads.ts";
+
+// Utilities
+import * as logs from "../utilities/logging.ts";
 
 export default class WebsocketManager {
     private socket!: WebSocket;

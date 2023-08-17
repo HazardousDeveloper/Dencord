@@ -1,3 +1,4 @@
+// Classes
 import Role from "./Role.ts";
 import Emoji from "./Emoji.ts";
 

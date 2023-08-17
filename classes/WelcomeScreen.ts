@@ -1,3 +1,4 @@
+// Classes
 import WelcomeScreenChannel from "./WelcomeScreenChannel.ts";
 
 export default class WelcomeScreen {

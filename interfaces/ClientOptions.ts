@@ -1,3 +1,4 @@
+// Enums
 import { Intents } from "../constants/enums.ts";
 
 export default interface ClientOptions {

@@ -1,6 +1,6 @@
 import { EventEmitter } from "https://deno.land/x/eventemitter@1.2.1/mod.ts";
 
-import { User } from "../classes/User.ts";
+import User from "../classes/User.ts";
 import WebsocketManager from "../ws/WebsocketManager.ts";
 import Message from "../classes/Message.ts";
 import RESTapi from "../rest/REST.ts";
@@ -9,18 +9,23 @@ import { TextChannelType } from "../constants/enums.ts";
 import * as logs from "../utilities/logging.ts";
 import ClientOptions from "../interfaces/ClientOptions.ts";
 import Guild from "../classes/Guild.ts";
+import Application from "../classes/Application.ts";
+import ApplicationCommand from "../interfaces/ApplicationCommand.ts";
+import Interaction from "../classes/Interaction.ts";
 
 export default class Client extends EventEmitter<{
     ready (): any
     messageCreate (message: Message): any
+    interactionCreate (interaction: Interaction): any
 }>{
     token!: string;
     intents!: number;
     socket: WebsocketManager = new WebsocketManager(this);
-    public user!: User;
-    public rest!: RESTapi;
-    public channels: Map<string,Channel | TextChannel | VoiceChannel> = new Map<string,Channel | TextChannel | VoiceChannel>;
-    public guilds: Map<string,Guild> = new Map<string,Guild>;
+    user!: User;
+    rest!: RESTapi;
+    channels: Map<string,Channel | TextChannel | VoiceChannel> = new Map<string,Channel | TextChannel | VoiceChannel>;
+    guilds: Map<string,Guild> = new Map<string,Guild>;
+    application!: Application;
 
     constructor(token: string,options: ClientOptions) {
         super();
@@ -86,7 +91,14 @@ export default class Client extends EventEmitter<{
         return guild;
     }
 
-    connect() {
+    async bulkEditCommands(commands: Array<ApplicationCommand>) {
+        await this.rest.request(`applications/${this.application.id}/commands`,"PUT",commands);
+    }
+
+    async connect() {
+        const appDataResponse = await this.rest.request("applications/@me","GET");
+        const appData = await appDataResponse.json();
+        this.application = new Application(appData);
         this.socket.connect(this.token);
     }
 }

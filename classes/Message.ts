@@ -1,7 +1,14 @@
-import { User } from "../classes/User.ts";
+// Classes
+import User from "../classes/User.ts";
 import Client from "../client/Client.ts";
 import { Channel, TextChannel, VoiceChannel } from "./Channel.ts";
-import { TextChannelType, VoiceChannelType } from "../constants/enums.ts";
+
+// Interfaces
+import { Embed } from "../interfaces/Embed.ts";
+import MessageContent from "../interfaces/MessageContent.ts";
+
+// Utilities
+import * as log from "../utilities/logging.ts";
 
 export default class Message {
     id!: string;
@@ -9,6 +16,7 @@ export default class Message {
     channel?: Channel | TextChannel | VoiceChannel;
     author!: User;
     content!: string;
+    embeds!: Array<Embed>;
 
     constructor(private client: Client,d: any) {
         this.id = d.id;
@@ -16,13 +24,14 @@ export default class Message {
         console.log(this.channelId);
         this.author = new User(d.author);
         this.content = d.content;
+        this.embeds = d.embeds
         this.client.getChannel(this.channelId).then((value) => {
             this.channel = value;
         });
     }
 
-    async reply(content: string | any) {
-        let data: any = {
+    async reply(content: string | MessageContent) {
+        let data: MessageContent = {
             content: "",
             tts: false
         }
@@ -41,17 +50,18 @@ export default class Message {
 
         const response = await this.client.rest.request(`channels/${this.channelId}/messages`,"POST",data);
 
-        const newMessage: any = await response.json();
+        const newMessage: MessageContent = await response.json();
         return new Message(this.client,newMessage);
     }
 
-    async edit(content: string | any) {
-        let data: any = {
+    async edit(content: string | MessageContent) {
+        let data: MessageContent = {
             content: "",
             tts: false
         }
 
         if (typeof(content) == "string") {
+            if (content.length <= 0) return log.error("Message content can't be blank");
             data.content = content;
         } else {
             data = content;

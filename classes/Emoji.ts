@@ -1,5 +1,6 @@
+// Classes
 import Role from "./Role.ts";
-import { User } from "./User.ts";
+import User from "./User.ts";
 
 export default class Emoji {
     id?: string;

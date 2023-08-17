@@ -109,6 +109,43 @@ export enum StickerFormat {
     GIF = 4
 }
 
+export enum ApplicationCommandType {
+    CHAT_INPUT = 1,
+    USER = 2,
+    MESSAGE = 3
+}
+
+export enum ApplicationCommandOptionType {
+    SUB_COMMAND = 1,
+    SUB_COMMAND_GROUP = 2,
+    STRING = 3,
+    INTEGER = 4,
+    BOOLEAN = 5,
+    USER = 6,
+    CHANNEL = 7,
+    ROLE = 8,
+    MENTIONABLE = 9,
+    NUMBER = 10,
+    ATTACHMENT = 11
+}
+
+export enum InteractionType {
+    PING = 1,
+    APPLICATION_COMMAND = 2,
+    MESSAGE_COMPONENT = 3,
+    APPLICATION_COMMAND_AUTOCOMPLETE = 4,
+    MODAL_SUBMIT = 5
+}
+
+export enum EmbedType {
+    RICH = "rich",
+    IMAGE = "image",
+    VIDEO = "video",
+    GIFV = "gifv",
+    ARTICLE = "article",
+    LINK = "link"
+}
+
 export const WebSocketCloseCodes: {[propName: string]: any;} = {
     "4000": ["Unknown error",true],
     "4001": ["Unknown opcode",true],
