@@ -55,7 +55,7 @@ export default class Interaction {
 
         const interactionResponse = {
             type: 4,
-            data: messageData
+            data: messageData,
         };
 
         await this.client.rest.request(
