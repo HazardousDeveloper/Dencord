@@ -1,17 +1,23 @@
+// Classes
 import { EventEmitter } from "https://deno.land/x/eventemitter@1.2.1/mod.ts";
-
 import User from "../classes/User.ts";
 import Shard from "../ws/Shard.ts";
 import Message from "../classes/Message.ts";
 import RESTapi from "../rest/REST.ts";
 import { Channel, TextChannel, VoiceChannel } from "../classes/Channel.ts";
-import { TextChannelType } from "../constants/enums.ts";
-import * as logs from "../utilities/logging.ts";
-import ClientOptions from "../interfaces/ClientOptions.ts";
 import Guild from "../classes/Guild.ts";
 import Application from "../classes/Application.ts";
-import ApplicationCommand from "../interfaces/ApplicationCommand.ts";
 import Interaction from "../classes/Interaction.ts";
+
+// Utilities
+import * as logs from "../utilities/logging.ts";
+
+// Interfaces
+import ApplicationCommand from "../interfaces/ApplicationCommand.ts";
+import ClientOptions from "../interfaces/ClientOptions.ts";
+
+// Constants
+import { TextChannelType } from "../constants/enums.ts";
 
 export default class Client extends EventEmitter<{
     ready (): any
