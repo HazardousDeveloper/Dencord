@@ -25,8 +25,6 @@ export default class RESTapi {
             logs.error(`DiscordRESTerror: ${response.status.toString()} ${response.statusText}`);
         }
 
-        console.log(response.headers);
-
         return response;
     }
 }

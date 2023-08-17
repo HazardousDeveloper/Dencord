@@ -12,7 +12,7 @@ import * as Payloads from "../constants/payloads.ts";
 // Utilities
 import * as logs from "../utilities/logging.ts";
 
-export default class WebsocketManager {
+export default class Shard {
     private socket!: WebSocket;
     private interval: any;
     public user: User | undefined;
@@ -27,21 +27,18 @@ export default class WebsocketManager {
 
     sendHeartbeat() {
         if (this.socket.readyState === 1) {
-            logs.log("Succesfully sent a heartbeat");
             this.socket.send(JSON.stringify(Payloads.Heartbeat));
         }
     }
 
     heartbeat(ms: number) {
-        logs.log("Heartbeating")
         return setInterval(() => {
-            logs.log("Sending heartbeat");
             this.sendHeartbeat();
         },ms);
     }
 
-    async identify(token: string) {
-        Payloads.Identify.d.token = token;
+    identify() {
+        Payloads.Identify.d.token = this.client.token;
         Payloads.Identify.d.intents = this.client.intents;
         return this.socket.send(JSON.stringify(Payloads.Identify));
     }
@@ -53,12 +50,12 @@ export default class WebsocketManager {
         this.socket.close();
     }
 
-    reconnect(token: string) {
+    reconnect() {
         this.disconnect();
-        this.connect(token,this.resumeGatewayUrl);
+        this.connect(this.resumeGatewayUrl);
     }
 
-    connect(token: string,gatewayUrl?: string) {
+    connect(gatewayUrl?: string) {
         try {
             this.socket = new WebSocket(gatewayUrl || Constants.GATEWAY);
             this.socket.onerror = console.error;
@@ -68,11 +65,8 @@ export default class WebsocketManager {
                     logs.error(`WebSocket closed : ${String(ev.code)} "${errorMessage}"`);
                 }
                 if (!ev.code || (WebSocketCloseCodes[String(ev.code)] && WebSocketCloseCodes[String(ev.code)][1] === true)) {
-                    this.reconnect(this.client.token);
+                    this.reconnect();
                 }
-            });
-            this.socket.addEventListener("open",(_ev: Event) => {
-                logs.log("Websocket connection is opened");
             });
             this.socket.onmessage = async (message: MessageEvent) => {
                 const payload: Payload = JSON.parse(message.data);
@@ -82,7 +76,7 @@ export default class WebsocketManager {
                         logs.log("Got HELLO");
                         this.interval = this.heartbeat(payload.d.heartbeat_interval);
                         if (!gatewayUrl) {
-                            await this.identify(token);
+                            await this.identify();
                         }
                         break;
                     }
@@ -95,15 +89,15 @@ export default class WebsocketManager {
                         break;
                     }
                     case (OpCodes.RECONNECT): {
-                        this.reconnect(token);
+                        this.reconnect();
                         break;
                     }
                     case (OpCodes.INVALID_SESSION): {
                         if (payload.d === true) {
-                            this.reconnect(token);
+                            this.reconnect();
                         } else if (payload.d === false && gatewayUrl) {
                             this.disconnect();
-                            this.connect(token);
+                            this.connect();
                         }
                         break;
                     }

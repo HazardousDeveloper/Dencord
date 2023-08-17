@@ -1,7 +1,7 @@
 import { EventEmitter } from "https://deno.land/x/eventemitter@1.2.1/mod.ts";
 
 import User from "../classes/User.ts";
-import WebsocketManager from "../ws/WebsocketManager.ts";
+import Shard from "../ws/Shard.ts";
 import Message from "../classes/Message.ts";
 import RESTapi from "../rest/REST.ts";
 import { Channel, TextChannel, VoiceChannel } from "../classes/Channel.ts";
@@ -20,7 +20,7 @@ export default class Client extends EventEmitter<{
 }>{
     token!: string;
     intents!: number;
-    socket: WebsocketManager = new WebsocketManager(this);
+    socket: Shard = new Shard(this);
     user!: User;
     rest!: RESTapi;
     channels: Map<string,Channel | TextChannel | VoiceChannel> = new Map<string,Channel | TextChannel | VoiceChannel>;
@@ -99,6 +99,6 @@ export default class Client extends EventEmitter<{
         const appDataResponse = await this.rest.request("applications/@me","GET");
         const appData = await appDataResponse.json();
         this.application = new Application(appData);
-        this.socket.connect(this.token);
+        this.socket.connect();
     }
 }
