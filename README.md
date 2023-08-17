@@ -1,3 +1,5 @@
+<img align="right" src="https://cdn.discordapp.com/attachments/1118593916623650926/1141824468193394798/mp7prT4.png" width=20% height=20%>
+
 # Dencord
 A Discord API wrapper for Deno
 
