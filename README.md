@@ -9,7 +9,7 @@ That's right, this will take a *loooong* time to finish because, I'm a student, 
 # Example code
 Here's an example of how the code looks when using Dencord.
 ```ts
-import * as Discordeno from "path/to/mod.ts";
+import * as Discordeno from "https://deno.land/x/dencordts/mods.ts";
 
 const client: Discordeno.Client = new Discordeno.Client("YOUR-BOT-TOKEN",{
     intents: Discordeno.Enums.Intents.ALL
