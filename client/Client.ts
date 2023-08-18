@@ -102,9 +102,20 @@ export default class Client extends EventEmitter<{
     }
 
     async connect() {
+        logs.log("Connecting to Discord");
+
         const appDataResponse = await this.rest.request("applications/@me","GET");
         const appData = await appDataResponse.json();
+
+        const botDataResponse = await this.rest.request("gateway/bot","GET");
+        const botData = await botDataResponse.json();
+
+        const botUserDataResponse = await this.rest.request("users/@me","GET");
+        const botUserData = await botUserDataResponse.json();
+
+        this.user = new User(botUserData);
         this.application = new Application(appData);
         this.socket.connect();
+        logs.log("Connected");
     }
 }

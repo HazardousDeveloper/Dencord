@@ -1,5 +1,4 @@
 // Classes
-import User from "../classes/User.ts";
 import Client from "../client/Client.ts";
 
 // Interfaces
@@ -15,7 +14,6 @@ import * as logs from "../utilities/logging.ts";
 export default class Shard {
     private socket!: WebSocket;
     private interval: any;
-    public user: User | undefined;
 
     resumeGatewayUrl!: string;
     sessionId!: string;
@@ -73,7 +71,6 @@ export default class Shard {
 
                 switch (payload.op) {
                     case (OpCodes.HELLO): {
-                        logs.log("Got HELLO");
                         this.interval = this.heartbeat(payload.d.heartbeat_interval);
                         if (!gatewayUrl) {
                             await this.identify();
@@ -85,7 +82,6 @@ export default class Shard {
                         break;
                     }
                     case (OpCodes.HEARTBEAT_ACK): {
-                        logs.log("Heartbeat acknowledged");
                         break;
                     }
                     case (OpCodes.RECONNECT): {
