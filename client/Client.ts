@@ -1,5 +1,5 @@
 // Classes
-import { EventEmitter } from "https://deno.land/x/eventemitter@1.2.1/mod.ts";
+import { EventEmitter } from "https://deno.land/std/node/events.ts";
 import User from "../classes/User.ts";
 import Shard from "../ws/Shard.ts";
 import Message from "../classes/Message.ts";
@@ -18,14 +18,11 @@ import ClientOptions from "../interfaces/ClientOptions.ts";
 
 // Constants
 import { TextChannelType } from "../constants/enums.ts";
+import * as Enums from "../constants/enums.ts";
 
-export default class Client extends EventEmitter<{
-    ready (): any
-    messageCreate (message: Message): any
-    interactionCreate (interaction: Interaction): any
-}>{
+export default class Client extends EventEmitter {
     token!: string;
-    intents!: number;
+    intents: number = Enums.Intents.ALL;
     socket: Shard = new Shard(this);
     user!: User;
     rest!: RESTapi;
@@ -33,17 +30,19 @@ export default class Client extends EventEmitter<{
     guilds: Map<string,Guild> = new Map<string,Guild>;
     application!: Application;
 
-    constructor(token: string,options: ClientOptions) {
+    constructor(token: string,options?: ClientOptions) {
         super();
         this.token = token;
         this.rest = new RESTapi(this,{
             "Content-Type": "application/json",
             "Authorization": `Bot ${this.token}`
         });
-        if (typeof(options.intents) === "number") {
-            this.intents = options.intents;
-        } else {
-            this.intents = options.intents.reduce((a,b) => a + b,1);
+        if (options) {
+            if (typeof(options.intents) !== "number") {
+                this.intents = options.intents.reduce((a,b) => a + b,1);
+            } else {
+                this.intents = options.intents;
+            }
         }
     }
 
